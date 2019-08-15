@@ -16,10 +16,9 @@ def interpret(prog):
     
     while tick < max_ticks and pc < len(lines):
         tick += 1
-        cmd = lines[pc].lower().strip()
-        print("pc: %s reg: %s regs: %s dir: %s @%s" % (pc, reg, regs, 
-        
-        current_direction, cmd))
+        cmd, arg = extract_cmd_arg(lines[pc])
+        print("pc: %s reg: %s regs: %s dir: %s @%s" % 
+            (pc, reg, regs, current_direction, lines[pc]))
         if cmd == 'nop':
             pass
         elif cmd == 'sense': 
@@ -28,20 +27,20 @@ def interpret(prog):
             reg -= 1
         elif cmd == 'add1': 
             reg += 1
-        elif cmd.startswith('copyto'):
-            regs[get_int_arg(cmd)] = reg
-        elif cmd.startswith('copyfrom'):
-            reg = regs[get_int_arg(cmd)]
-        elif cmd.startswith('ifn'):
+        elif cmd == 'copyto':
+            regs[int(arg)] = reg
+        elif cmd == 'copyfrom':
+            reg = regs[int(arg)]
+        elif cmd == 'ifn':
             if reg < 0:
-                pc += get_int_arg(cmd)
+                pc += int(arg)
                 continue
-        elif cmd.startswith('ifz'):
+        elif cmd == 'ifz':
             if reg == 0:
-                pc += get_int_arg(cmd)
+                pc += int(arg)
                 continue
-        elif cmd.startswith('jmp'):
-            pc += get_int_arg(cmd)
+        elif cmd == 'jmp':
+            pc += int(arg)
             continue
         elif cmd == 'left': 
             turn_left()
@@ -52,13 +51,14 @@ def interpret(prog):
             
         pc += 1
 
-def get_arg(cmd):
-    'Return the argument of CMD ARG.'
-    return cmd.split(' ')[1]
-
-def get_int_arg(cmd):
-    'Return the ARG of CMD ARG as int.'
-    return int(get_arg(cmd))
+def extract_cmd_arg(cmd_arg):
+    'take the userinput and extract cmd and argument.'
+    cmd2 = cmd_arg.lower().strip()
+    if ' ' in cmd2:
+        c, a = cmd2.split(' ')
+        return c, a
+    else:
+        return cmd2, None
 
 def turn_left():
     global current_direction
