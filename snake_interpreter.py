@@ -11,12 +11,15 @@ def interpret(prog):
     lines = prog.splitlines()
     pc = 0
     reg = 0  # register value
+    regs = [0] * 10
     tick, max_ticks = 0, 100
     
     while tick < max_ticks and pc < len(lines):
         tick += 1
         cmd = lines[pc].lower().strip()
-        print("pc: %s reg: %s dir: %s \t @ %s" % (pc, reg, current_direction, cmd))
+        print("pc: %s reg: %s regs: %s dir: %s @%s" % (pc, reg, regs, 
+        
+        current_direction, cmd))
         if cmd == 'nop':
             pass
         elif cmd == 'sense': 
@@ -25,6 +28,10 @@ def interpret(prog):
             reg -= 1
         elif cmd == 'add1': 
             reg += 1
+        elif cmd.startswith('copyto'):
+            regs[get_int_arg(cmd)] = reg
+        elif cmd.startswith('copyfrom'):
+            reg = regs[get_int_arg(cmd)]
         elif cmd.startswith('ifn'):
             if reg < 0:
                 pc += get_int_arg(cmd)
@@ -129,7 +136,21 @@ def demo4():
     print(prog)
     interpret(prog)
 
+def demo5():
+    'rememering last sensed'
+    prog = '''sense
+    copyto 1
+    add1
+    copyto 2
+    add1
+    copyto 3
+    copyfrom 1
+    sub1
+    nop'''
+
+    print(prog)
+    interpret(prog)
 
 if __name__ == '__main__':
     print("Starting")
-    demo4()
+    demo5()
